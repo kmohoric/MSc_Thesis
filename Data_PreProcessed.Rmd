@@ -1,0 +1,575 @@
+---
+title: "Pre_processing"
+author: "Karla"
+date: '2022-07-15'
+output: html_document
+---
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE
+  )
+```
+
+Clear global environment prior to initiation
+```{r Clear global environment}
+remove(list = ls())
+```
+
+# 1. Install any necessary packages
+
+You may need to insert a chunk (ctrl + alt + i) and use the install.packages() function if you haven't installed all the packages. Use "" around your packages when installing them. This isn't needed to call them from the library.
+```{r install packages, eval=FALSE, include=FALSE}
+install.packages("tidyverse")
+install.packages("knitr")
+install.packages("summarytools")
+install.packages("kableExtra")
+install.packages("psych")
+install.packages("polycor")
+install.packages("gt")
+install.packages("skimr")
+install.packages("sjPlot")
+install.packages("sjmisc")
+install.packages("moments")
+install.packages("dplyr")
+```
+
+```{r load packages}
+library(knitr)
+library(summarytools)
+library(kableExtra) # kable wouldn't install in my version of R
+library(psych)
+library(polycor)
+library(gt)
+library(skimr)
+library(sjPlot)
+library(sjmisc)
+library(moments)
+library(tidyverse)
+library(dplyr)
+
+```
+
+Retrieve recent date
+We are using the recent date to save files with paste0() as an extension to not overwrite old versions
+```{r Recent date}
+date <- Sys.Date()
+date
+```
+
+# Read in data
+```{r import data}
+Data <- readRDS("C:/Users/karla/King's College London/TNG-Public - Karla_MSc/data_raw/PerPsych_MHPs_anon_2022-06-30.rds")
+
+```
+
+
+# select vaiables 
+```{r select variables}
+clean_data <- Data %>% select(MHP.DEM.Q2 ,
+                             MHP.DEM.Q3 , 
+                             MHP.DEMQ4 , 
+                             MHP.DEM.Q5 ,
+                             MHP.DEM.Q5_4_TEXT ,
+                             MHP.DEM.Q5_8_TEXT ,
+                             MHP.DEM.Q5_13_TEXT ,
+                             MHP.PROF.Q1 , 
+                             MHP.PROF.Q2 , 
+                             MHP.PROF.Q3 ,
+                             MHP.PROF.Q3_9_TEXT , 
+                             MHP.PROF.Q4 , 
+                             MHP.PROF.Q4_7_TEXT , 
+                             MHP.PROF.Q5 , 
+                             MHP.PROF.Q6 ,
+                             MHP.PROF.Q6_9_TEXT , 
+                             MHP.PROF.Q7 , 
+                             MHP.PROF.Q7_7_TEXT , 
+                             MHP.PROF.Q8 , 
+                             MHP.PROF.Q9 , 
+                             MHP.DIS.Q1_1 , 
+                             MHP.DIS.Q1_2 ,
+                             MHP.DIS.Q1_3 , 
+                             MHP.DIS.Q1_4 ,
+                             MHP.DIS.Q1_5 , 
+                             MHP.DIS.Q1_6 , 
+                             MHP.DIS.Q1_7 , 
+                             MHP.DIS.Q1_8 , 
+                             MHP.DIS.Q1_11 ,
+                             MHP.DIS.Q1_12 , 
+                             MHP.DIS.Q1_13 , 
+                             MHP.DIS.Q1_14 , 
+                             MHP.DIS.Q1_13_TEXT , 
+                             MHP.DIS.Q2_1 , 
+                             MHP.DIS.Q2_2 , 
+                             MHP.DIS.Q2_3 , 
+                             MHP.DIS.Q2_4 , 
+                             MHP.DIS.Q2_3_TEXT , 
+                             MHP.PER.DEP.Q1_1 , 
+                             MHP.PER.DEP.Q2_1 , 
+                             MHP.PER.ANX.Q1_1 , 
+                             MHP.PER.ANX.Q2_1 , 
+                             MHP.PER.PTSD.Q1_1 , 
+                             MHP.PER.PTSD.Q2_1 , 
+                             MHP.PER.BD.Q1_1 , 
+                             MHP.PER.BD.Q2_1 , 
+                             MHP.PER.SCZ.Q1_1 , 
+                             MHP.PER.SCZ.Q2_1 , 
+                             MHP.PER.OCD.Q1_1 , 
+                             MHP.PER.OCD.Q2_1 , 
+                             MHP.PER.SUD.Q1_1 , 
+                             MHP.PER.SUD.Q2_1 , 
+                             MHP.PER.ASD.Q1_1 ,
+                             MHP.PER.ASD.Q2_1 , 
+                             MHP.PER.PD.Q1_1 ,
+                             MHP.PER.PD.Q2_1 , 
+                             MHP.PER.AUD.Q1_1 , 
+                             MHP.PER.AUD.Q2_1 , 
+                             MHP.PER.ADHD.Q1_1 , 
+                             MHP.PER.ADHD.Q2_1 , 
+                             MHP.CONF.Q2 , 
+                             MHP.CONF.Q3 , 
+                             MHP.VID.Q1_1 , 
+                             MHP.VID.Q1_2 ,
+                             MHP.VID.Q1_3 , 
+                             MHP.VID.Q1_4 , 
+                             MHP.VID.Q1_5 , 
+                             MHP.VID.Q1_6 , 
+                             MHP.VID.Q1_7 , 
+                             MHP.VID.Q1_8 , 
+                             MHP.VID.Q1_9 , 
+                             MHP.VID.Q1_10 , 
+                             MHP.VID.Q1_11 , 
+                             MHP.VID.Q1_11_TEXT , 
+                             MHP.VID.Q1_12 , 
+                             MHP.VID.Q2_1 , 
+                             MHP.VID.Q2_2 , 
+                             MHP.GC.Q3_1 ,
+                             MHP.GC.Q3_2 , 
+                             MHP.GC.Q3_3 ,
+                             MHP.GC.Q3_4 , 
+                             MHP.GC.Q3_5 ,
+                             MHP.GC.Q3_6 , 
+                             MHP.GC.Q3_7 , 
+                             MHP.GC.Q3_8 , 
+                             MHP.GC.Q3_9 , 
+                             MHP.GC.Q3_10 , 
+                             MHP.GC.Q3_11 , 
+                             MHP.GC.Q3_11_TEXT , 
+                             MHP.GC.Q3_12 , 
+                             MHP.GC.Q4_1 , 
+                             MHP.GC.Q4_2 , 
+                             MHP.GC.Q4_3 , 
+                             MHP.GC.Q4_3_TEXT ,
+                             MHP.GC.Q4_4 , 
+                             MHP.GC.Q5_1 , 
+                             MHP.GC.Q5_2 , 
+                             MHP.GC.Q5_3 , 
+                             MHP.GC.Q5_4 , 
+                             MHP.GC.Q5_5 , 
+                             MHP.GC.Q5_6 , 
+                             MHP.GC.Q5_7 , 
+                             MHP.GC.Q5_8 , 
+                             MHP.GC.Q5_9 , 
+                             MHP.GC.Q5_10 , 
+                             MHP.GC.Q5_11 , 
+                             MHP.GC.Q5_11_TEXT , 
+                             MHP.GC.Q5_12 , 
+                             MHP.GC.Q6_1 , 
+                             MHP.GC.Q6_2 , 
+                             MHP.GC.Q6_3 , 
+                             MHP.GC.Q6_4)
+                             
+                
+```
+bi se prcila a, bi li, bi se samnom bavila a bih ajde di su slike a di su di si mi ti halo ces mi trulit na cuni
+bit ce ti depressing kad se vratis doma bome bome ce da kad bude sexy time 3 sekunde
+``` {r renaming}
+clean_data <- rename(clean_data , mhp.dem.gender = MHP.DEM.Q2 ,
+                      mhp.dem.sex = MHP.DEM.Q3 ,
+                      mhp.dem.age = MHP.DEMQ4 , 
+                      mhp.dem.ethn = MHP.DEM.Q5 ,
+                      mhp.dem.ethn.other.white = MHP.DEM.Q5_4_TEXT , 
+                      mhp.dem.ethn.other.mixed = MHP.DEM.Q5_8_TEXT , 
+                      mhp.dem.ethn.other.asian = MHP.DEM.Q5_13_TEXT , 
+                      mhp.prof.student_trainee = MHP.PROF.Q1 , 
+                      mhp.prof.student_trainee.UK = MHP.PROF.Q2 , 
+                      mhp.prof.student_trainee.field = MHP.PROF.Q3 , 
+                      mhp.prof.student_trainee.field.other = MHP.PROF.Q3_9_TEXT , 
+                      mhp.prof.student_trainee.setting = MHP.PROF.Q4 ,
+                      mhp.prof.student_trainee.setting.other = MHP.PROF.Q4_7_TEXT , 
+                      mhp.prof.work.UK = MHP.PROF.Q5 ,
+                      mhp.prof.work.field = MHP.PROF.Q6 ,
+                      mhp.prof.work.field.other = MHP.PROF.Q6_9_TEXT ,
+                      mhp.prof.work.setting = MHP.PROF.Q7 ,
+                      mhp.prof.work.setting.other = MHP.PROF.Q7_7_TEXT , 
+                      mhp.prof.work.nhs = MHP.PROF.Q8 ,
+                      mhp.prof.work.start.year = MHP.PROF.Q9 , 
+                      mhp.dis.depression = MHP.DIS.Q1_1 , 
+                      mhp.dis.anxiety = MHP.DIS.Q1_2 , 
+                      mhp.dis.ptsd = MHP.DIS.Q1_3 , 
+                      mhp.dis.bd = MHP.DIS.Q1_4 , 
+                      mhp.dis.scz = MHP.DIS.Q1_5 , 
+                      mhp.dis.ocd = MHP.DIS.Q1_6 ,  
+                      mhp.dis.ed = MHP.DIS.Q1_7 , 
+                      mhp.dis.sud = MHP.DIS.Q1_8 , 
+                      mhp.dis.pd = MHP.DIS.Q1_11 , 
+                      mhp.dis.aud = MHP.DIS.Q1_12 , 
+                      mhp.dis.not.listed = MHP.DIS.Q1_13 ,
+                      mhp.dis.not.listed.spec = MHP.DIS.Q1_13_TEXT ,
+                      mhp.dis.none = MHP.DIS.Q1_14 ,
+                      mhp.dis.adhd = MHP.DIS.Q2_1 , 
+                      mhp.dis.asd = MHP.DIS.Q2_2 , 
+                      mhp.dis.not.listed.neurodev = MHP.DIS.Q2_3 , 
+                      mhp.dis.not.listed.neurodev.spec = MHP.DIS.Q2_3_TEXT , 
+                      mhp.dis.none.neurodev = MHP.DIS.Q2_4 , 
+                      mhp.per.depression = MHP.PER.DEP.Q1_1 , 
+                      mhp.conf.depression = MHP.PER.DEP.Q2_1 ,
+                      mhp.per.anxiety = MHP.PER.ANX.Q1_1 ,
+                      mhp.conf.anxiety = MHP.PER.ANX.Q2_1 ,
+                      mhp.per.ptsd = MHP.PER.PTSD.Q1_1 , 
+                      mhp.conf.ptsd = MHP.PER.PTSD.Q2_1 ,
+                      mhp.per.bd = MHP.PER.BD.Q1_1 ,
+                      mhp.conf.bd = MHP.PER.BD.Q2_1 , 
+                      mhp.per.scz =  MHP.PER.SCZ.Q1_1 ,
+                      mhp.conf.scz = MHP.PER.SCZ.Q2_1 ,   
+                      mhp.per.ocd = MHP.PER.OCD.Q1_1 , 
+                      mhp.conf.ocd = MHP.PER.OCD.Q2_1 ,
+                      mhp.per.sud = MHP.PER.SUD.Q1_1 , 
+                      mhp.conf.sud = MHP.PER.SUD.Q2_1 ,
+                      mhp.per.asd = MHP.PER.ASD.Q1_1 ,
+                      mhp.conf.asd = MHP.PER.ASD.Q2_1 ,
+                      mhp.per.pd = MHP.PER.PD.Q1_1 ,
+                      mhp.conf.pd = MHP.PER.PD.Q2_1 ,
+                      mhp.per.aud = MHP.PER.AUD.Q1_1 ,
+                      mhp.conf.aud = MHP.PER.AUD.Q2_1 ,
+                      mhp.per.adhd = MHP.PER.ADHD.Q1_1 , 
+                      mhp.conf.adhd = MHP.PER.ADHD.Q2_1 ,
+                      mhp.conf.gen.risk = MHP.CONF.Q2 ,  
+                      mhp.conf.env.risk = MHP.CONF.Q3 ,
+                      mhp.vid.depression = MHP.VID.Q1_1 ,
+                      mhp.vid.anxiety = MHP.VID.Q1_2 ,
+                      mhp.vid.ptsd = MHP.VID.Q1_3 ,
+                      mhp.vid.bd = MHP.VID.Q1_4 ,
+                      mhp.vid.scz = MHP.VID.Q1_5 ,
+                      mhp.vid.ocd = MHP.VID.Q1_6 ,
+                      mhp.vid.ed = MHP.VID.Q1_7 ,
+                      mhp.vid.sud = MHP.VID.Q1_8 ,      
+                      mhp.vid.pd = MHP.VID.Q1_9 ,      
+                      mhp.vid.aud = MHP.VID.Q1_10 ,
+                      mhp.vid.not.listed = MHP.VID.Q1_11 ,
+                      mhp.vid.not.listed.spec = MHP.VID.Q1_11_TEXT ,        
+                      mhp.vid.none = MHP.VID.Q1_12 ,     
+                      mhp.vid.adhd = MHP.VID.Q2_1 , 
+                      mhp.vid.asd = MHP.VID.Q2_2 ,
+                      mhp.gc.help.depression = MHP.GC.Q3_1 ,
+                      mhp.gc.help.anxiety = MHP.GC.Q3_2 ,
+                      mhp.gc.help.ptsd = MHP.GC.Q3_3 ,   
+                      mhp.gc.help.bd = MHP.GC.Q3_4 ,
+                      mhp.gc.help.scz = MHP.GC.Q3_5 ,
+                      mhp.gc.help.ocd = MHP.GC.Q3_6 ,
+                      mhp.gc.help.ed = MHP.GC.Q3_7 , 
+                      mhp.gc.help.sud = MHP.GC.Q3_8 ,
+                      mhp.gc.help.pd = MHP.GC.Q3_9 ,
+                      mhp.gc.help.aud = MHP.GC.Q3_10 ,
+                      mhp.gc.help.not.listed = MHP.GC.Q3_11 ,     
+                      mhp.gc.help.not.listed.spec = MHP.GC.Q3_11_TEXT ,
+                      mhp.gc.help.none = MHP.GC.Q3_12 ,       
+                      mhp.gc.help.adhd = MHP.GC.Q4_1 ,      
+                      mhp.gc.help.asd = MHP.GC.Q4_2 ,   
+                      mhp.gc.help.not.listed.neurodev = MHP.GC.Q4_3 ,
+                      mhp.gc.help.not.listed.neurodev.spec =MHP.GC.Q4_3_TEXT ,       
+                      mhp.gc.help.none.neurodev = MHP.GC.Q4_4 ,        
+                      mhp.gc.recomm.depression = MHP.GC.Q5_1 ,        
+                      mhp.gc.recomm.anxiety = MHP.GC.Q5_2 ,       
+                      mhp.gc.recomm.ptsd =MHP.GC.Q5_3 ,       
+                      mhp.gc.recomm.bd = MHP.GC.Q5_4 ,        
+                      mhp.gc.recomm.scz = MHP.GC.Q5_5 ,       
+                      mhp.gc.recomm.ocd = MHP.GC.Q5_6 ,           
+                      mhp.gc.recomm.ed = MHP.GC.Q5_7 ,        
+                      mhp.gc.recomm.sud = MHP.GC.Q5_8 , 
+                      mhp.gc.recomm.pd = MHP.GC.Q5_9 ,
+                      mhp.gc.recomm.aud = MHP.GC.Q5_10 , 
+                      mhp.gc.recomm.not.listed = MHP.GC.Q5_11 ,
+                      mhp.gc.recomm.not.listed.spec = MHP.GC.Q5_11_TEXT ,
+                      mhp.gc.recomm.none = MHP.GC.Q5_12 ,   
+                      mhp.gc.recomm.adhd = MHP.GC.Q6_1 ,
+                      mhp.gc.recomm.asd = MHP.GC.Q6_2 ,
+                      mhp.gc.recomm.not.listed.neurodev = MHP.GC.Q6_3 ,
+                      mhp.gc.recomm.none.neurodev = MHP.GC.Q6_4)
+```
+
+```{r Numeric}
+
+```
+
+# How many people have complete data?
+``` {r Exclusions: AGE, SEX, PROFESSION, DISORDER}
+noData <- Data %>%
+  filter(is.na(MHP.DEM.Q3) &
+         is.na(MHP.DEMQ4) &
+         is.na(MHP.PROF.Q3) & 
+         is.na(MHP.PROF.Q6) & 
+         is.na(MHP.DIS.Q1_1) & 
+         is.na(MHP.DIS.Q1_2) & 
+         is.na(MHP.DIS.Q1_3) & 
+         is.na(MHP.DIS.Q1_4) & 
+         is.na(MHP.DIS.Q1_5) &  
+         is.na(MHP.DIS.Q1_6) &   
+         is.na(MHP.DIS.Q1_7) & 
+         is.na(MHP.DIS.Q1_8) & 
+         is.na(MHP.DIS.Q1_11) &  
+         is.na(MHP.DIS.Q1_12) & 
+         is.na(MHP.DIS.Q1_13))
+```
+
+``` {r Clean Data Set}
+cleanData <- Data %>%
+  filter(!is.na(MHP.DEM.Q3) &
+         !is.na(MHP.DEMQ4) &
+         (!is.na(MHP.PROF.Q3) |
+         !is.na(MHP.PROF.Q6)) & 
+         (!is.na(MHP.DIS.Q1_1) |
+         !is.na(MHP.DIS.Q1_2) |
+         !is.na(MHP.DIS.Q1_3) | 
+         !is.na(MHP.DIS.Q1_4) | 
+         !is.na(MHP.DIS.Q1_5) | 
+         !is.na(MHP.DIS.Q1_6) | 
+         !is.na(MHP.DIS.Q1_7) | 
+         !is.na(MHP.DIS.Q1_8) | 
+         !is.na(MHP.DIS.Q1_11) |  
+         !is.na(MHP.DIS.Q1_12) | 
+         !is.na(MHP.DIS.Q1_13)) &
+         ((MHP.PROF.Q2 == "Yes") | 
+         (MHP.PROF.Q5 == "Yes")) & 
+         ((MHP.PROF.Q3_9_TEXT != "Genetic counselling") | 
+         is.na(MHP.PROF.Q3_9_TEXT))) # filter = keep
+``` 
+
+# Rename vaiables 
+```{r ename variables}
+
+Data <- Data %>% dplyr::rename(mhp.dem.gender = MHP.DEM.Q2)
+
+```
+
+```{r ename variables}
+
+cleanData <- cleanData %>% dplyr::rename(mhp.dem.gender_txt = MHP.DEM.Q2_4_TEXT , 
+                                         mhp.)
+
+```
+
+``` {r Genetic score assignment}
+disorderTable <- cleanData %>% select(contains("MHP.PER."))
+realDisorderTable <- disorderTable %>% select(contains("Q1_1"))
+
+cleanData <- cleanData %>%
+  mutate(MHP.PER.DEP.Q1_1_numeric = case_when(
+    depr == "Only environmental factors" ~ 0,
+    MHP.PER.DEP.Q1_1 == "Almost only environmental factors" ~ 1,
+    startsWith(MHP.PER.DEP.Q1_1, "Mainly environmental factors" ~ 2,
+    startsWith(MHP.PER.DEP.Q1_1, "SLightly more environmental factors") ~ 3,
+    startsWith(MHP.PER.DEP.Q1_1, "Equal genetic and environmental factors") ~ 4,
+    startsWith(MHP.PER.DEP.Q1_1, "SLightly more gentic factors") ~ 5,
+    startsWith(MHP.PER.DEP.Q1_1, "Mainly genetic factors") ~ 6,
+    startsWith(MHP.PER.DEP.Q1_1, "Almost only genetic factors") ~ 7,
+    startsWith(MHP.PER.DEP.Q1_1, "Only genetic factors") ~ 8))
+
+realDisorderTable <- realDisorderTable %>%
+  mutate(MHP.PER.ANX.Q1_CNT = case_when(
+    startsWith(MHP.PER.ANX.Q1_1, "Only environmental factors") ~ 0,
+    startsWith(MHP.PER.ANX.Q1_1, "Almost only environmental factors") ~ 1,
+    startsWith(MHP.PER.ANX.Q1_1, "Mainly environmental factors") ~ 2,
+    startsWith(MHP.PER.ANX.Q1_1, "SLightly more environmental factors") ~ 3,
+    startsWith(MHP.PER.ANX.Q1_1, "Equal genetic and environmental factors") ~ 4,
+    startsWith(MHP.PER.ANX.Q1_1, "SLightly more gentic factors") ~ 5,
+    startsWith(MHP.PER.ANX.Q1_1, "Mainly genetic factors") ~ 6,
+    startsWith(MHP.PER.ANX.Q1_1, "Almost only genetic factors") ~ 7,
+    startsWith(MHP.PER.ANX.Q1_1, "Only genetic factors") ~ 8))
+
+realDisorderTable <- realDisorderTable %>%
+  mutate(MHP.PER.PTSD.Q1_CNT = case_when(
+    startsWith(MHP.PER.PTSD.Q1_1, "Only environmental factors") ~ 0,
+    startsWith(MHP.PER.PTSD.Q1_1, "Almost only environmental factors") ~ 1,
+    startsWith(MHP.PER.PTSD.Q1_1, "Mainly environmental factors") ~ 2,
+    startsWith(MHP.PER.PTSD.Q1_1, "SLightly more environmental factors") ~ 3,
+    startsWith(MHP.PER.PTSD.Q1_1, "Equal genetic and environmental factors") ~ 4,
+    startsWith(MHP.PER.PTSD.Q1_1, "SLightly more gentic factors") ~ 5,
+    startsWith(MHP.PER.PTSD.Q1_1, "Mainly genetic factors") ~ 6,
+    startsWith(MHP.PER.PTSD.Q1_1, "Almost only genetic factors") ~ 7,
+    startsWith(MHP.PER.PTSD.Q1_1, "Only genetic factors") ~ 8))
+
+realDisorderTable <- realDisorderTable %>%
+  mutate(MHP.PER.BD.Q1_CNT = case_when(
+    startsWith(MHP.PER.BD.Q1_1, "Only environmental factors") ~ 0,
+    startsWith(MHP.PER.BD.Q1_1, "Almost only environmental factors") ~ 1,
+    startsWith(MHP.PER.BD.Q1_1, "Mainly environmental factors") ~ 2,
+    startsWith(MHP.PER.BD.Q1_1, "SLightly more environmental factors") ~ 3,
+    startsWith(MHP.PER.BD.Q1_1, "Equal genetic and environmental factors") ~ 4,
+    startsWith(MHP.PER.BD.Q1_1, "SLightly more gentic factors") ~ 5,
+    startsWith(MHP.PER.BD.Q1_1, "Mainly genetic factors") ~ 6,
+    startsWith(MHP.PER.BD.Q1_1, "Almost only genetic factors") ~ 7,
+    startsWith(MHP.PER.BD.Q1_1, "Only genetic factors") ~ 8))
+
+realDisorderTable <- realDisorderTable %>%
+  mutate(MHP.PER.SCZ.Q1_CNT = case_when(
+    startsWith(MHP.PER.SCZ.Q1_1, "Only environmental factors") ~ 0,
+    startsWith(MHP.PER.SCZ.Q1_1, "Almost only environmental factors") ~ 1,
+    startsWith(MHP.PER.SCZ.Q1_1, "Mainly environmental factors") ~ 2,
+    startsWith(MHP.PER.SCZ.Q1_1, "SLightly more environmental factors") ~ 3,
+    startsWith(MHP.PER.SCZ.Q1_1, "Equal genetic and environmental factors") ~ 4,
+    startsWith(MHP.PER.SCZ.Q1_1, "SLightly more gentic factors") ~ 5,
+    startsWith(MHP.PER.SCZ.Q1_1, "Mainly genetic factors") ~ 6,
+    startsWith(MHP.PER.SCZ.Q1_1, "Almost only genetic factors") ~ 7,
+    startsWith(MHP.PER.SCZ.Q1_1, "Only genetic factors") ~ 8))
+
+realDisorderTable <- realDisorderTable %>%
+  mutate(MHP.PER.OCD.Q1_CNT = case_when(
+    startsWith(MHP.PER.OCD.Q1_1, "Only environmental factors") ~ 0,
+    startsWith(MHP.PER.OCD.Q1_1, "Almost only environmental factors") ~ 1,
+    startsWith(MHP.PER.OCD.Q1_1, "Mainly environmental factors") ~ 2,
+    startsWith(MHP.PER.OCD.Q1_1, "SLightly more environmental factors") ~ 3,
+    startsWith(MHP.PER.OCD.Q1_1, "Equal genetic and environmental factors") ~ 4,
+    startsWith(MHP.PER.OCD.Q1_1, "SLightly more gentic factors") ~ 5,
+    startsWith(MHP.PER.OCD.Q1_1, "Mainly genetic factors") ~ 6,
+    startsWith(MHP.PER.OCD.Q1_1, "Almost only genetic factors") ~ 7,
+    startsWith(MHP.PER.OCD.Q1_1, "Only genetic factors") ~ 8))
+
+realDisorderTable <- realDisorderTable %>%
+  mutate(MHP.PER.ED.Q1_CNT = case_when(
+    startsWith(MHP.PER.ED.Q1_1, "Only environmental factors") ~ 0,
+    startsWith(MHP.PER.ED.Q1_1, "Almost only environmental factors") ~ 1,
+    startsWith(MHP.PER.ED.Q1_1, "Mainly environmental factors") ~ 2,
+    startsWith(MHP.PER.ED.Q1_1, "SLightly more environmental factors") ~ 3,
+    startsWith(MHP.PER.ED.Q1_1, "Equal genetic and environmental factors") ~ 4,
+    startsWith(MHP.PER.ED.Q1_1, "SLightly more gentic factors") ~ 5,
+    startsWith(MHP.PER.ED.Q1_1, "Mainly genetic factors") ~ 6,
+    startsWith(MHP.PER.ED.Q1_1, "Almost only genetic factors") ~ 7,
+    startsWith(MHP.PER.ED.Q1_1, "Only genetic factors") ~ 8))
+
+realDisorderTable <- realDisorderTable %>%
+  mutate(MHP.PER.SUD.Q1_CNT = case_when(
+    startsWith(MHP.PER.SUD.Q1_1, "Only environmental factors") ~ 0,
+    startsWith(MHP.PER.SUD.Q1_1, "Almost only environmental factors") ~ 1,
+    startsWith(MHP.PER.SUD.Q1_1, "Mainly environmental factors") ~ 2,
+    startsWith(MHP.PER.SUD.Q1_1, "SLightly more environmental factors") ~ 3,
+    startsWith(MHP.PER.SUD.Q1_1, "Equal genetic and environmental factors") ~ 4,
+    startsWith(MHP.PER.SUD.Q1_1, "SLightly more gentic factors") ~ 5,
+    startsWith(MHP.PER.SUD.Q1_1, "Mainly genetic factors") ~ 6,
+    startsWith(MHP.PER.SUD.Q1_1, "Almost only genetic factors") ~ 7,
+    startsWith(MHP.PER.SUD.Q1_1, "Only genetic factors") ~ 8))
+
+realDisorderTable <- realDisorderTable %>%
+  mutate(MHP.PER.ASD.Q1_CNT = case_when(
+    startsWith(MHP.PER.ASD.Q1_1, "Only environmental factors") ~ 0,
+    startsWith(MHP.PER.ASD.Q1_1, "Almost only environmental factors") ~ 1,
+    startsWith(MHP.PER.ASD.Q1_1, "Mainly environmental factors") ~ 2,
+    startsWith(MHP.PER.ASD.Q1_1, "SLightly more environmental factors") ~ 3,
+    startsWith(MHP.PER.ASD.Q1_1, "Equal genetic and environmental factors") ~ 4,
+    startsWith(MHP.PER.ASD.Q1_1, "SLightly more gentic factors") ~ 5,
+    startsWith(MHP.PER.ASD.Q1_1, "Mainly genetic factors") ~ 6,
+    startsWith(MHP.PER.ASD.Q1_1, "Almost only genetic factors") ~ 7,
+    startsWith(MHP.PER.ASD.Q1_1, "Only genetic factors") ~ 8))
+
+realDisorderTable <- realDisorderTable %>%
+  mutate(MHP.PER.PD.Q1_CNT = case_when(
+    startsWith(MHP.PER.PD.Q1_1, "Only environmental factors") ~ 0,
+    startsWith(MHP.PER.PD.Q1_1, "Almost only environmental factors") ~ 1,
+    startsWith(MHP.PER.PD.Q1_1, "Mainly environmental factors") ~ 2,
+    startsWith(MHP.PER.PD.Q1_1, "SLightly more environmental factors") ~ 3,
+    startsWith(MHP.PER.PD.Q1_1, "Equal genetic and environmental factors") ~ 4,
+    startsWith(MHP.PER.PD.Q1_1, "SLightly more gentic factors") ~ 5,
+    startsWith(MHP.PER.PD.Q1_1, "Mainly genetic factors") ~ 6,
+    startsWith(MHP.PER.PD.Q1_1, "Almost only genetic factors") ~ 7,
+    startsWith(MHP.PER.PD.Q1_1, "Only genetic factors") ~ 8))
+
+realDisorderTable <- realDisorderTable %>%
+  mutate(MHP.PER.AUD.Q1_CNT = case_when(
+    startsWith(MHP.PER.AUD.Q1_1, "Only environmental factors") ~ 0,
+    startsWith(MHP.PER.AUD.Q1_1, "Almost only environmental factors") ~ 1,
+    startsWith(MHP.PER.AUD.Q1_1, "Mainly environmental factors") ~ 2,
+    startsWith(MHP.PER.AUD.Q1_1, "SLightly more environmental factors") ~ 3,
+    startsWith(MHP.PER.AUD.Q1_1, "Equal genetic and environmental factors") ~ 4,
+    startsWith(MHP.PER.AUD.Q1_1, "SLightly more gentic factors") ~ 5,
+    startsWith(MHP.PER.AUD.Q1_1, "Mainly genetic factors") ~ 6,
+    startsWith(MHP.PER.AUD.Q1_1, "Almost only genetic factors") ~ 7,
+    startsWith(MHP.PER.AUD.Q1_1, "Only genetic factors") ~ 8))
+
+realDisorderTable <- realDisorderTable %>%
+  mutate(MHP.PER.ADHD.Q1_CNT = case_when(
+    startsWith(MHP.PER.ADHD.Q1_1, "Only environmental factors") ~ 0,
+    startsWith(MHP.PER.ADHD.Q1_1, "Almost only environmental factors") ~ 1,
+    startsWith(MHP.PER.ADHD.Q1_1, "Mainly environmental factors") ~ 2,
+    startsWith(MHP.PER.ADHD.Q1_1, "SLightly more environmental factors") ~ 3,
+    startsWith(MHP.PER.ADHD.Q1_1, "Equal genetic and environmental factors") ~ 4,
+    startsWith(MHP.PER.ADHD.Q1_1, "SLightly more gentic factors") ~ 5,
+    startsWith(MHP.PER.ADHD.Q1_1, "Mainly genetic factors") ~ 6,
+    startsWith(MHP.PER.ADHD.Q1_1, "Almost only genetic factors") ~ 7,
+    startsWith(MHP.PER.ADHD.Q1_1, "Only genetic factors") ~ 8))
+
+onlyNumbersDisorderTable <- realDisorderTable[,(ncol(realDisorderTable)-10-1):ncol(realDisorderTable)]
+```
+
+``` {r Genetic score means}
+meansGeneticScore <- c(
+  mean(onlyNumbersDisorderTable$MHP.PER.DEP.Q1_CNT, na.rm=TRUE),
+  mean(onlyNumbersDisorderTable$MHP.PER.ANX.Q1_CNT, na.rm=TRUE),
+  mean(onlyNumbersDisorderTable$MHP.PER.PTSD.Q1_CNT, na.rm=TRUE),
+  mean(onlyNumbersDisorderTable$MHP.PER.BD.Q1_CNT, na.rm=TRUE),
+  mean(onlyNumbersDisorderTable$MHP.PER.SCZ.Q1_CNT, na.rm=TRUE),
+  mean(onlyNumbersDisorderTable$MHP.PER.OCD.Q1_CNT, na.rm=TRUE),
+  mean(onlyNumbersDisorderTable$MHP.PER.ED.Q1_CNT, na.rm=TRUE),
+  mean(onlyNumbersDisorderTable$MHP.PER.SUD.Q1_CNT, na.rm=TRUE),
+  mean(onlyNumbersDisorderTable$MHP.PER.ASD.Q1_CNT, na.rm=TRUE),
+  mean(onlyNumbersDisorderTable$MHP.PER.PD.Q1_CNT, na.rm=TRUE),
+  mean(onlyNumbersDisorderTable$MHP.PER.AUD.Q1_CNT, na.rm=TRUE),
+  mean(onlyNumbersDisorderTable$MHP.PER.ADHD.Q1_CNT, na.rm=TRUE)
+)
+meansDataFrame <- data.frame(means=meansGeneticScore)
+
+ggplot(meansDataFrame, aes(x=means)) + geom_histogram(binwidth=.5, colour="black", fill="white")
+#ggplot(meansDataFrame, aes(x=means)) + geom_histogram(aes(y=c(1,2,3,4,5,6,7,8,9,10,11,12)),bins=12)
+
+#print(mean(onlyNumbersDisorderTable$MHP.PER.DEP.Q1_CNT, na.rm=TRUE))
+#print(rowMeans(onlyNumbersDisorderTable, na.rm=TRUE))
+
+```
+
+``` {r Confidence data}
+depressionConfidence <- data.frame(confidece=na.omit(as.numeric(cleanData$MHP.PER.DEP.Q2_1)))
+
+ggplot(depressionConfidence, aes(x=confidece)) + geom_histogram(aes(y=..density..), binwidth=.5, colour="black", fill="white") + geom_density(alpha=.2, fill="#FF6666") + ggtitle("Depression")
+
+anxietyConfidence <- data.frame(confidece=na.omit(as.numeric(cleanData$MHP.PER.ANX.Q2_1)))
+
+ggplot(anxietyConfidence, aes(x=confidece)) + geom_histogram(aes(y=..density..), binwidth=.5, colour="black", fill="white") + geom_density(alpha=.2, fill="#FF6666") + ggtitle("Anxitey")
+
+ggplot(data = cleanData,
+       mapping = aes(x = MHP.PER.DEP.Q2_1, y=count)) + 
+  geom_histogram()
+
+cleanData %>% descr(MHP.PER.DEP.Q2_1)
+
+str(cleanData$MHP.PER.DEP.Q2_1)
+# make new variable which is a copy of the old one but in numeric format
+cleanData <- cleanData %>% 
+  mutate(MHP.PER.DEP.Q2_1_numeric = as.numeric(MHP.PER.DEP.Q2_1))
+
+# checking new variable
+str(cleanData$MHP.PER.DEP.Q2_1_numeric) 
+                                
+```
+
+
+``` {r Exclusions: AGE, SEX, PROFESSION, DISORDER}
+#missing for age AND sex AND profession AND disorders they work with)
+noData <- Data %>%
+  filter(is.na()) # filter = keep
+``` 
+
+``` {r missing}
+nrow(noData)
+``` 
+

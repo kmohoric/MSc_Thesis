@@ -1,0 +1,1304 @@
+---
+title: "Data_Analysis_Main"
+author: "Karla"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r Setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  comment = '',
+  prompt = FALSE,
+  cache = FALSE)
+```
+
+```{r install packages, eval=FALSE, include=FALSE}
+install.packages("tidyverse")
+install.packages("knitr")
+install.packages("summarytools")
+install.packages("kableExtra")
+install.packages("psych")
+install.packages("polycor")
+install.packages("gt")
+install.packages("skimr")
+install.packages("sjPlot")
+install.packages("sjmisc")
+install.packages("moments")
+install.packages("dplyr")
+install.packages("haven")
+install.packages("foreign")
+install.packages("reshape2")
+install.packages("ggplot2")
+install.packages("ggpubr")
+
+``` 
+
+```{r load packages}
+library(knitr)
+library(summarytools)
+library(kableExtra)
+library(psych)
+library(polycor)
+library(gt)
+library(skimr)
+library(sjPlot)
+library(sjmisc)
+library(moments)
+library(tidyverse)
+library(dplyr)
+library(haven)
+library(foreign)
+library(reshape2)
+#library(devtools)
+library(ggplot2)
+library(ggpubr)
+
+```
+
+```{r recent date}
+date <- Sys.Date()
+date
+```
+
+```{r import data}
+data <- readRDS("C:/Users/karla/King's College London/TNG-Public - Karla_MSc/data/PerPsych_MHPs_anon_clean_2022-07-27.rds")
+```
+
+```{r export to .csv}
+write.csv(data, "C:/Users/karla/King's College London/TNG-Public - Karla_MSc/data/PerPsych_MHPs_anon_clean_2022-07-27_csv.csv")
+```
+
+ANALYSIS 
+
+1. GENETIC SCORES 
+``` {r Genetic score means}
+pyschData <- clean_data %>% 
+  filter(mhp.prof.work.field=="Assistant psychologist" |
+         mhp.prof.student.trainee.field=="Assistant psychologist" |
+         mhp.prof.work.field=="Counsellor" |
+         mhp.prof.student.trainee.field=="Counsellor" |
+         mhp.prof.work.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field.other=="Clinical Associate Psychologist" |
+         mhp.prof.work.field=="Clinical psychologist" |
+         mhp.prof.student.trainee.field=="Clinical psychologist" |
+         mhp.prof.work.field=="Counselling psychologist" |
+         mhp.prof.work.field=="Educational psychologist" |
+         mhp.prof.work.field.other=="Education Mental Health Practitioner (EMHP)" |
+         mhp.prof.work.field=="Psychological Wellbeing Practitioner" |
+         mhp.prof.work.field=="Social worker" |
+         mhp.prof.work.field=="Therapist" |
+         mhp.prof.student.trainee.field=="Therapist" |
+         mhp.prof.work.field.other=="Psychotherapist" | 
+         mhp.prof.work.field.other=="Psychological Therapist")
+
+medData <- clean_data %>%  
+  filter(mhp.prof.work.field=="General Practitioner (GP)" |
+         mhp.prof.student.trainee.field=="General Practitioner (GP)" |
+         mhp.prof.work.field=="Mental health nurse" |
+         mhp.prof.work.field=="Psychiatrist" |
+         mhp.prof.student.trainee.field=="Psychiatrist" |
+         mhp.prof.work.field.other=="Physical Wellbeing Lead")
+
+midPercentage <- clean_data %>%
+    filter((((clean_data$mhp.per.depression.numeric == 8) | (clean_data$mhp.per.depression.numeric == 0)) & !is.na(clean_data$mhp.per.depression.numeric)) | 
+           (((clean_data$mhp.per.anxiety.numeric == 8) & (clean_data$mhp.per.anxiety.numeric == 0)) & !is.na(clean_data$mhp.per.anxiety.numeric)) |
+           (((clean_data$mhp.per.ptsd.numeric == 8) & (clean_data$mhp.per.ptsd.numeric == 0)) & !is.na(clean_data$mhp.per.ptsd.numeric)) | 
+           (((clean_data$mhp.per.bd.numeric == 8) & (clean_data$mhp.per.bd.numeric == 0)) & !is.na(clean_data$mhp.per.bd.numeric)) |  
+           (((clean_data$mhp.per.scz.numeric == 8) & (clean_data$mhp.per.scz.numeric == 0)) & !is.na(clean_data$mhp.per.scz.numeric)) |  
+           (((clean_data$mhp.per.ocd.numeric == 8) & (clean_data$mhp.per.ocd.numeric == 0)) & !is.na(clean_data$mhp.per.ocd.numeric)) | 
+           (((clean_data$mhp.per.ed.numeric == 8) & (clean_data$mhp.per.ed.numeric == 0)) & !is.na(clean_data$mhp.per.ed.numeric)) | 
+           (((clean_data$mhp.per.sud.numeric == 8) & (clean_data$mhp.per.sud.numeric == 0)) & !is.na(clean_data$mhp.per.sud.numeric)) |  
+           (((clean_data$mhp.per.pd.numeric == 8) & (clean_data$mhp.per.pd.numeric == 0)) & !is.na(clean_data$mhp.per.pd.numeric)) | 
+           (((clean_data$mhp.per.aud.numeric == 8) & (clean_data$mhp.per.aud.numeric == 0)) & !is.na(clean_data$mhp.per.aud.numeric)) |  
+           (((clean_data$mhp.per.adhd.numeric == 8) & (clean_data$mhp.per.adhd.numeric == 0)) & !is.na(clean_data$mhp.per.adhd.numeric)) |  
+           (((clean_data$mhp.per.asd.numeric == 8) & (clean_data$mhp.per.asd.numeric == 0)) & !is.na(clean_data$mhp.per.asd.numeric)))
+
+meansGeneticScoreOverall <- c(
+  mean(clean_data$mhp.per.depression.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.per.anxiety.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.per.ptsd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.per.bd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.per.scz.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.per.ocd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.per.ed.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.per.sud.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.per.pd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.per.aud.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.per.adhd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.per.asd.numeric, na.rm=TRUE)
+)
+sdGeneticScoreOverall <- c(
+  sd(clean_data$mhp.per.depression.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.per.anxiety.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.per.ptsd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.per.bd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.per.scz.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.per.ocd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.per.ed.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.per.sud.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.per.pd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.per.aud.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.per.adhd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.per.asd.numeric, na.rm=TRUE)
+)
+
+
+meansGeneticScorePsych <- c(
+  mean(pyschData$mhp.per.depression.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.per.anxiety.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.per.ptsd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.per.bd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.per.scz.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.per.ocd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.per.ed.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.per.sud.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.per.pd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.per.aud.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.per.adhd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.per.asd.numeric, na.rm=TRUE)
+)
+sdGeneticScorePsych <- c(
+  sd(pyschData$mhp.per.depression.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.per.anxiety.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.per.ptsd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.per.bd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.per.scz.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.per.ocd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.per.ed.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.per.sud.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.per.pd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.per.aud.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.per.adhd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.per.asd.numeric, na.rm=TRUE)
+)
+
+
+meansGeneticScoreMed <- c(
+  mean(medData$mhp.per.depression.numeric, na.rm=TRUE),
+  mean(medData$mhp.per.anxiety.numeric, na.rm=TRUE),
+  mean(medData$mhp.per.ptsd.numeric, na.rm=TRUE),
+  mean(medData$mhp.per.bd.numeric, na.rm=TRUE),
+  mean(medData$mhp.per.scz.numeric, na.rm=TRUE),
+  mean(medData$mhp.per.ocd.numeric, na.rm=TRUE),
+  mean(medData$mhp.per.ed.numeric, na.rm=TRUE),
+  mean(medData$mhp.per.sud.numeric, na.rm=TRUE),
+  mean(medData$mhp.per.pd.numeric, na.rm=TRUE),
+  mean(medData$mhp.per.aud.numeric, na.rm=TRUE),
+  mean(medData$mhp.per.adhd.numeric, na.rm=TRUE),
+  mean(medData$mhp.per.asd.numeric, na.rm=TRUE)
+)
+sdGeneticScoreMed <- c(
+  sd(medData$mhp.per.depression.numeric, na.rm=TRUE),
+  sd(medData$mhp.per.anxiety.numeric, na.rm=TRUE),
+  sd(medData$mhp.per.ptsd.numeric, na.rm=TRUE),
+  sd(medData$mhp.per.bd.numeric, na.rm=TRUE),
+  sd(medData$mhp.per.scz.numeric, na.rm=TRUE),
+  sd(medData$mhp.per.ocd.numeric, na.rm=TRUE),
+  sd(medData$mhp.per.ed.numeric, na.rm=TRUE),
+  sd(medData$mhp.per.sud.numeric, na.rm=TRUE),
+  sd(medData$mhp.per.pd.numeric, na.rm=TRUE),
+  sd(medData$mhp.per.aud.numeric, na.rm=TRUE),
+  sd(medData$mhp.per.adhd.numeric, na.rm=TRUE),
+  sd(medData$mhp.per.asd.numeric, na.rm=TRUE)
+)
+
+meanGeneticTitle <- c("DEP", "ANX", "PTSD", "BD", "SCZ", "OCD", "ED", "SUD", "PD", "AUD", "ADHD", "ASD")
+
+overallMeansDataFrame <- data.frame(means=meansGeneticScoreOverall, sds=sdGeneticScoreOverall, titles=meanGeneticTitle, Subgroup="Overall Mean Score")
+pychMeansDataFrame <- data.frame(means=meansGeneticScorePsych, sds=sdGeneticScorePsych, titles=meanGeneticTitle, Subgroup="Psychologically trained MHPs")
+medMeansDataFrame <- data.frame(means=meansGeneticScoreMed, sds=sdGeneticScoreMed, titles=meanGeneticTitle, Subgroup="Medically trained MHPs ")
+
+allDataFrame <- rbind(overallMeansDataFrame, pychMeansDataFrame, medMeansDataFrame)
+
+ggplot(allDataFrame, aes(x=titles, y=means, fill=Subgroup)) + geom_bar(stat="identity", position=position_dodge()) + geom_errorbar(aes(x=titles, ymin=means-sds, ymax=means+sds), width=.3, position=position_dodge(.9)) + xlab("Psychiatric Disorder") + ylab("Mean Perceived Genetic Contribution Score") + theme(legend.position="bottom") + guides(fill=guide_legend(title = NULL)) + scale_fill_manual(values=c("#EFBF42", "#A4B8C4", "#8B3582"))  #33FFFF #B0DB43 #12EAEA
+ 
+t.test(meansGeneticScoreMed, meansGeneticScorePsych)
+```  
+
+```{r t.test genetic scores}
+pyschData <- clean_data %>% 
+  filter(mhp.prof.work.field=="Assistant psychologist" |
+         mhp.prof.student.trainee.field=="Assistant psychologist" |
+         mhp.prof.work.field=="Counsellor" |
+         mhp.prof.student.trainee.field=="Counsellor" |
+         mhp.prof.work.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field.other=="Clinical Associate Psychologist" |
+         mhp.prof.work.field=="Clinical psychologist" |
+         mhp.prof.student.trainee.field=="Clinical psychologist" |
+         mhp.prof.work.field=="Counselling psychologist" |
+         mhp.prof.work.field=="Educational psychologist" |
+         mhp.prof.work.field.other=="Education Mental Health Practitioner (EMHP)" |
+         mhp.prof.work.field=="Psychological Wellbeing Practitioner" |
+         mhp.prof.work.field=="Social worker" |
+         mhp.prof.work.field=="Therapist" |
+         mhp.prof.student.trainee.field=="Therapist" |
+         mhp.prof.work.field.other=="Psychotherapist" | 
+         mhp.prof.work.field.other=="Psychological Therapist")
+
+medData <- clean_data %>%  
+  filter(mhp.prof.work.field=="General Practitioner (GP)" |
+         mhp.prof.student.trainee.field=="General Practitioner (GP)" |
+         mhp.prof.work.field=="Mental health nurse" |
+         mhp.prof.work.field=="Psychiatrist" |
+         mhp.prof.student.trainee.field=="Psychiatrist" |
+         mhp.prof.work.field.other=="Physical Wellbeing Lead")
+
+t.test(pyschData$mhp.per.depression.numeric, medData$mhp.per.depression.numeric)
+t.test(pyschData$mhp.per.anxiety.numeric, medData$mhp.per.anxiety.numeric)
+t.test(pyschData$mhp.per.ptsd.numeric, medData$mhp.per.ptsd.numeric)
+t.test(pyschData$mhp.per.bd.numeric, medData$mhp.per.bd.numeric)
+t.test(pyschData$mhp.per.scz.numeric, medData$mhp.per.scz.numeric)
+t.test(pyschData$mhp.per.ocd.numeric, medData$mhp.per.ocd.numeric)
+t.test(pyschData$mhp.per.ed.numeric, medData$mhp.per.ed.numeric)
+t.test(pyschData$mhp.per.sud.numeric, medData$mhp.per.sud.numeric)
+t.test(pyschData$mhp.per.pd.numeric, medData$mhp.per.pd.numeric)
+t.test(pyschData$mhp.per.aud.numeric, medData$mhp.per.aud.numeric)
+t.test(pyschData$mhp.per.adhd.numeric, medData$mhp.per.adhd.numeric)
+t.test(pyschData$mhp.per.asd.numeric, medData$mhp.per.asd.numeric)
+```
+
+
+2. CONFIDENCE SCORES
+```{r mean confidence}
+pyschData <- clean_data %>% 
+  filter(mhp.prof.work.field=="Assistant psychologist" |
+         mhp.prof.student.trainee.field=="Assistant psychologist" |
+         mhp.prof.work.field=="Counsellor" |
+         mhp.prof.student.trainee.field=="Counsellor" |
+         mhp.prof.work.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field.other=="Clinical Associate Psychologist" |
+         mhp.prof.work.field=="Clinical psychologist" |
+         mhp.prof.student.trainee.field=="Clinical psychologist" |
+         mhp.prof.work.field=="Counselling psychologist" |
+         mhp.prof.work.field=="Educational psychologist" |
+         mhp.prof.work.field.other=="Education Mental Health Practitioner (EMHP)" |
+         mhp.prof.work.field=="Psychological Wellbeing Practitioner" |
+         mhp.prof.work.field=="Social worker" |
+         mhp.prof.work.field=="Therapist" |
+         mhp.prof.student.trainee.field=="Therapist" |
+         mhp.prof.work.field.other=="Psychotherapist" | 
+         mhp.prof.work.field.other=="Psychological Therapist")
+
+medData <- clean_data %>%  
+  filter(mhp.prof.work.field=="General Practitioner (GP)" |
+         mhp.prof.student.trainee.field=="General Practitioner (GP)" |
+         mhp.prof.work.field=="Mental health nurse" |
+         mhp.prof.work.field=="Psychiatrist" |
+         mhp.prof.student.trainee.field=="Psychiatrist" |
+         mhp.prof.work.field.other=="Physical Wellbeing Lead")
+
+
+means.confidence.score.overall <- c(
+  mean(clean_data$mhp.conf.depression.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.conf.anxiety.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.conf.ptsd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.conf.bd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.conf.scz.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.conf.ocd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.conf.ed.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.conf.sud.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.conf.pd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.conf.aud.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.conf.adhd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.conf.asd.numeric, na.rm=TRUE)
+)
+sd.confidence.score.overall <- c(
+  sd(clean_data$mhp.conf.depression.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.conf.anxiety.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.conf.ptsd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.conf.bd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.conf.scz.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.conf.ocd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.conf.ed.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.conf.sud.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.conf.pd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.conf.aud.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.conf.adhd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.conf.asd.numeric, na.rm=TRUE)
+)
+
+
+means.confidence.score.psych <- c(
+  mean(pyschData$mhp.conf.depression.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.conf.anxiety.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.conf.ptsd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.conf.bd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.conf.scz.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.conf.ocd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.conf.ed.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.conf.sud.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.conf.pd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.conf.aud.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.conf.adhd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.conf.asd.numeric, na.rm=TRUE)
+)
+sd.confidence.score.psych <- c(
+  sd(pyschData$mhp.conf.depression.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.conf.anxiety.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.conf.ptsd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.conf.bd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.conf.scz.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.conf.ocd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.conf.ed.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.conf.sud.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.conf.pd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.conf.aud.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.conf.adhd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.conf.asd.numeric, na.rm=TRUE)
+)
+
+
+means.confidence.score.med <- c(
+  mean(medData$mhp.conf.depression.numeric, na.rm=TRUE),
+  mean(medData$mhp.conf.anxiety.numeric, na.rm=TRUE),
+  mean(medData$mhp.conf.ptsd.numeric, na.rm=TRUE),
+  mean(medData$mhp.conf.bd.numeric, na.rm=TRUE),
+  mean(medData$mhp.conf.scz.numeric, na.rm=TRUE),
+  mean(medData$mhp.conf.ocd.numeric, na.rm=TRUE),
+  mean(medData$mhp.conf.ed.numeric, na.rm=TRUE),
+  mean(medData$mhp.conf.sud.numeric, na.rm=TRUE),
+  mean(medData$mhp.conf.pd.numeric, na.rm=TRUE),
+  mean(medData$mhp.conf.aud.numeric, na.rm=TRUE),
+  mean(medData$mhp.conf.adhd.numeric, na.rm=TRUE),
+  mean(medData$mhp.conf.asd.numeric, na.rm=TRUE)
+)
+sd.confidence.score.med <- c(
+  sd(medData$mhp.conf.depression.numeric, na.rm=TRUE),
+  sd(medData$mhp.conf.anxiety.numeric, na.rm=TRUE),
+  sd(medData$mhp.conf.ptsd.numeric, na.rm=TRUE),
+  sd(medData$mhp.conf.bd.numeric, na.rm=TRUE),
+  sd(medData$mhp.conf.scz.numeric, na.rm=TRUE),
+  sd(medData$mhp.conf.ocd.numeric, na.rm=TRUE),
+  sd(medData$mhp.conf.ed.numeric, na.rm=TRUE),
+  sd(medData$mhp.conf.sud.numeric, na.rm=TRUE),
+  sd(medData$mhp.conf.pd.numeric, na.rm=TRUE),
+  sd(medData$mhp.conf.aud.numeric, na.rm=TRUE),
+  sd(medData$mhp.conf.adhd.numeric, na.rm=TRUE),
+  sd(medData$mhp.conf.asd.numeric, na.rm=TRUE)
+)
+
+
+
+
+
+mean.confidence.title <- c("DEP", "ANX", "PTSD", "BD", "SCZ", "OCD", "ED", "SUD", "PD", "AUD", "ADHD", "ASD")
+
+overall.confidence.dataframe <- data.frame(means=means.confidence.score.overall, sds=sd.confidence.score.overall, titles=mean.confidence.title, subgroup="Overall Confidence Score")
+psych.confidence.dataframe <- data.frame(means=means.confidence.score.psych, sds=sd.confidence.score.psych, titles=mean.confidence.title, subgroup="Psychologically trained MHPs")
+med.confidence.dataframe <-data.frame(means=means.confidence.score.med, sds=sd.confidence.score.med, titles=mean.confidence.title, subgroup="Medically trained MHPs")
+
+all.dataframe <- rbind(overall.confidence.dataframe, psych.confidence.dataframe, med.confidence.dataframe)
+print(all.dataframe)
+
+ggplot(all.dataframe, aes(x=titles, y=means, fill=subgroup)) + geom_bar(stat="identity", position=position_dodge()) + geom_errorbar(aes(x=titles, ymin=means-sds, ymax=means+sds), width=.3, position=position_dodge(.9)) + xlab("Psychiatric Disorder") + ylab("Mean Perceived Confidence Score") + theme(legend.position="bottom") + guides(fill=guide_legend(title = NULL)) + scale_fill_manual(values=c("#EFBF42", "#A4B8C4", "#8B3582"))  #33FFFF #B0DB43 #12EAEA
+
+
+t.test(means.confidence.score.med, means.confidence.score.psych)
+
+``` 
+
+```{r t.test confidence scores}
+pyschData <- clean_data %>% 
+  filter(mhp.prof.work.field=="Assistant psychologist" |
+         mhp.prof.student.trainee.field=="Assistant psychologist" |
+         mhp.prof.work.field=="Counsellor" |
+         mhp.prof.student.trainee.field=="Counsellor" |
+         mhp.prof.work.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field.other=="Clinical Associate Psychologist" |
+         mhp.prof.work.field=="Clinical psychologist" |
+         mhp.prof.student.trainee.field=="Clinical psychologist" |
+         mhp.prof.work.field=="Counselling psychologist" |
+         mhp.prof.work.field=="Educational psychologist" |
+         mhp.prof.work.field.other=="Education Mental Health Practitioner (EMHP)" |
+         mhp.prof.work.field=="Psychological Wellbeing Practitioner" |
+         mhp.prof.work.field=="Social worker" |
+         mhp.prof.work.field=="Therapist" |
+         mhp.prof.student.trainee.field=="Therapist" |
+         mhp.prof.work.field.other=="Psychotherapist" | 
+         mhp.prof.work.field.other=="Psychological Therapist")
+
+medData <- clean_data %>%  
+  filter(mhp.prof.work.field=="General Practitioner (GP)" |
+         mhp.prof.student.trainee.field=="General Practitioner (GP)" |
+         mhp.prof.work.field=="Mental health nurse" |
+         mhp.prof.work.field=="Psychiatrist" |
+         mhp.prof.student.trainee.field=="Psychiatrist" |
+         mhp.prof.work.field.other=="Physical Wellbeing Lead")
+
+t.test(pyschData$mhp.per.depression.numeric, medData$mhp.per.depression.numeric)
+t.test(pyschData$mhp.per.anxiety.numeric, medData$mhp.per.anxiety.numeric)
+t.test(pyschData$mhp.per.ptsd.numeric, medData$mhp.per.ptsd.numeric)
+t.test(pyschData$mhp.per.bd.numeric, medData$mhp.per.bd.numeric)
+t.test(pyschData$mhp.per.scz.numeric, medData$mhp.per.scz.numeric)
+t.test(pyschData$mhp.per.ocd.numeric, medData$mhp.per.ocd.numeric)
+t.test(pyschData$mhp.per.ed.numeric, medData$mhp.per.ed.numeric)
+t.test(pyschData$mhp.per.sud.numeric, medData$mhp.per.sud.numeric)
+t.test(pyschData$mhp.per.pd.numeric, medData$mhp.per.pd.numeric)
+t.test(pyschData$mhp.per.aud.numeric, medData$mhp.per.aud.numeric)
+t.test(pyschData$mhp.per.adhd.numeric, medData$mhp.per.adhd.numeric)
+t.test(pyschData$mhp.per.asd.numeric, medData$mhp.per.asd.numeric)
+```
+
+
+3. DISCUSSION CONFIDENCE SCORES 
+```{r mean discussion confidence}
+pyschData <- clean_data %>% 
+  filter(mhp.prof.work.field=="Assistant psychologist" |
+         mhp.prof.student.trainee.field=="Assistant psychologist" |
+         mhp.prof.work.field=="Counsellor" |
+         mhp.prof.student.trainee.field=="Counsellor" |
+         mhp.prof.work.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field.other=="Clinical Associate Psychologist" |
+         mhp.prof.work.field=="Clinical psychologist" |
+         mhp.prof.student.trainee.field=="Clinical psychologist" |
+         mhp.prof.work.field=="Counselling psychologist" |
+         mhp.prof.work.field=="Educational psychologist" |
+         mhp.prof.work.field.other=="Education Mental Health Practitioner (EMHP)" |
+         mhp.prof.work.field=="Psychological Wellbeing Practitioner" |
+         mhp.prof.work.field=="Social worker" |
+         mhp.prof.work.field=="Therapist" |
+         mhp.prof.student.trainee.field=="Therapist" |
+         mhp.prof.work.field.other=="Psychotherapist" | 
+         mhp.prof.work.field.other=="Psychological Therapist")
+
+medData <- clean_data %>%  
+  filter(mhp.prof.work.field=="General Practitioner (GP)" |
+         mhp.prof.student.trainee.field=="General Practitioner (GP)" |
+         mhp.prof.work.field=="Mental health nurse" |
+         mhp.prof.work.field=="Psychiatrist" |
+         mhp.prof.student.trainee.field=="Psychiatrist" |
+         mhp.prof.work.field.other=="Physical Wellbeing Lead")
+
+
+#Overall Gen 
+means.conf.gen.risk.overall <- 
+  mean(clean_data$mhp.conf.gen.risk.numeric, na.rm=TRUE)
+
+sd.conf.gen.risk.score.overall <- 
+  sd(clean_data$mhp.conf.gen.risk.numeric, na.rm=TRUE)
+
+#Overall Env 
+means.conf.env.risk.overall <- 
+  mean(clean_data$mhp.conf.env.risk.numeric, na.rm=TRUE)
+
+sd.conf.env.risk.score.overall <- 
+  sd(clean_data$mhp.conf.env.risk.numeric, na.rm=TRUE)
+  
+
+#Psych Gen 
+means.conf.gen.risk.psych <-
+  mean(pyschData$mhp.conf.gen.risk.numeric, na.rm=TRUE)
+
+sd.conf.gen.risk.score.psych <-
+  sd(pyschData$mhp.conf.gen.risk.numeric, na.rm=TRUE)
+
+#Psych Env 
+means.conf.env.risk.psych <- 
+  mean(pyschData$mhp.conf.env.risk.numeric, na.rm=TRUE)
+
+sd.conf.env.risk.score.psych <- 
+  sd(pyschData$mhp.conf.env.risk.numeric, na.rm=TRUE)
+  
+
+#Med Gen  
+means.conf.gen.risk.med <-
+  mean(medData$mhp.conf.gen.risk.numeric, na.rm=TRUE)
+
+sd.conf.gen.risk.score.med <-
+  sd(medData$mhp.conf.gen.risk.numeric, na.rm=TRUE)
+
+#Med Env
+means.conf.env.risk.med <- 
+  mean(medData$mhp.conf.env.risk.numeric, na.rm=TRUE)
+
+sd.conf.env.risk.score.med <- sd(medData$mhp.conf.env.risk.numeric, na.rm=TRUE)
+
+mean.conf.gen.risk.title <- "Genetic Risk"
+mean.conf.env.risk.title <- "Environmental Risk"
+
+overall.conf.gen.risk.dataframe <- data.frame(means=means.conf.gen.risk.overall, sds=sd.conf.gen.risk.score.overall, titles=mean.conf.gen.risk.title, subgroup="Overall Confidence")
+psych.conf.gen.risk.dataframe <- data.frame(means=means.conf.gen.risk.psych, sds=sd.conf.gen.risk.score.psych, titles=mean.conf.gen.risk.title, subgroup="Psychologically trained MHPs")
+med.conf.gen.risk.dataframe <-data.frame(means=means.conf.gen.risk.med, sds=sd.conf.gen.risk.score.med, titles=mean.conf.gen.risk.title, subgroup="Medically trained MHPs")
+
+overall.conf.env.risk.dataframe <- data.frame(means=means.conf.env.risk.overall, sds=sd.conf.env.risk.score.overall, titles=mean.conf.env.risk.title, subgroup="Overall Confidence")
+psych.conf.env.risk.dataframe <- data.frame(means=means.conf.env.risk.psych, sds=sd.conf.env.risk.score.psych, titles=mean.conf.env.risk.title, subgroup="Psychologically trained MHPs")
+med.conf.env.risk.dataframe <-data.frame(means=means.conf.env.risk.med, sds=sd.conf.env.risk.score.med, titles=mean.conf.env.risk.title, subgroup="Medically trained MHPs")
+
+all.dataframe.2 <- rbind(overall.conf.gen.risk.dataframe, psych.conf.gen.risk.dataframe, med.conf.gen.risk.dataframe, overall.conf.env.risk.dataframe, psych.conf.env.risk.dataframe, med.conf.env.risk.dataframe)
+
+#all.dataframe.3 <- rbind(overall.conf.env.risk.dataframe, psych.conf.env.risk.dataframe, med.conf.env.risk.dataframe)
+
+ggplot(all.dataframe.2, aes(x=titles, y=means, fill=subgroup)) + geom_bar(stat="identity", position=position_dodge()) + geom_errorbar(aes(x=titles, ymin=means-sds, ymax=means+sds), width=.3, position=position_dodge(.9)) + xlab("Type of Risk") + ylab("Mean Confidence in Discussing Risk") + theme(legend.position="bottom") + guides(fill=guide_legend(title = NULL)) + scale_fill_manual(values=c("#EFBF42", "#A4B8C4", "#8B3582"))
+
+ #33FFFF #B0DB43 #12EAEA
+
+
+
+``` 
+
+```{r t.test confidence scores}
+pyschData <- clean_data %>% 
+  filter(mhp.prof.work.field=="Assistant psychologist" |
+         mhp.prof.student.trainee.field=="Assistant psychologist" |
+         mhp.prof.work.field=="Counsellor" |
+         mhp.prof.student.trainee.field=="Counsellor" |
+         mhp.prof.work.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field.other=="Clinical Associate Psychologist" |
+         mhp.prof.work.field=="Clinical psychologist" |
+         mhp.prof.student.trainee.field=="Clinical psychologist" |
+         mhp.prof.work.field=="Counselling psychologist" |
+         mhp.prof.work.field=="Educational psychologist" |
+         mhp.prof.work.field.other=="Education Mental Health Practitioner (EMHP)" |
+         mhp.prof.work.field=="Psychological Wellbeing Practitioner" |
+         mhp.prof.work.field=="Social worker" |
+         mhp.prof.work.field=="Therapist" |
+         mhp.prof.student.trainee.field=="Therapist" |
+         mhp.prof.work.field.other=="Psychotherapist" | 
+         mhp.prof.work.field.other=="Psychological Therapist")
+
+medData <- clean_data %>%  
+  filter(mhp.prof.work.field=="General Practitioner (GP)" |
+         mhp.prof.student.trainee.field=="General Practitioner (GP)" |
+         mhp.prof.work.field=="Mental health nurse" |
+         mhp.prof.work.field=="Psychiatrist" |
+         mhp.prof.student.trainee.field=="Psychiatrist" |
+         mhp.prof.work.field.other=="Physical Wellbeing Lead")
+
+t.test(pyschData$mhp.conf.gen.risk.numeric, medData$mhp.conf.gen.risk.numeric)
+
+t.test(pyschData$mhp.conf.env.risk.numeric, medData$mhp.conf.env.risk.numeric)
+
+t.test(clean_data$mhp.conf.env.risk.numeric, clean_data$mhp.conf.gen.risk.numeric)
+
+t.test(pyschData$mhp.conf.env.risk.numeric, pyschData$mhp.conf.gen.risk.numeric)
+
+t.test(medData$mhp.conf.env.risk.numeric, medData$mhp.conf.gen.risk.numeric)
+```
+
+
+4. VIDEO HELPFULNESS SCORES 
+``` {r video usefulness scores}
+pyschData <- clean_data %>% 
+  filter(mhp.prof.work.field=="Assistant psychologist" |
+         mhp.prof.student.trainee.field=="Assistant psychologist" |
+         mhp.prof.work.field=="Counsellor" |
+         mhp.prof.student.trainee.field=="Counsellor" |
+         mhp.prof.work.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field.other=="Clinical Associate Psychologist" |
+         mhp.prof.work.field=="Clinical psychologist" |
+         mhp.prof.student.trainee.field=="Clinical psychologist" |
+         mhp.prof.work.field=="Counselling psychologist" |
+         mhp.prof.work.field=="Educational psychologist" |
+         mhp.prof.work.field.other=="Education Mental Health Practitioner (EMHP)" |
+         mhp.prof.work.field=="Psychological Wellbeing Practitioner" |
+         mhp.prof.work.field=="Social worker" |
+         mhp.prof.work.field=="Therapist" |
+         mhp.prof.student.trainee.field=="Therapist" |
+         mhp.prof.work.field.other=="Psychotherapist" | 
+         mhp.prof.work.field.other=="Psychological Therapist")
+
+medData <- clean_data %>%  
+  filter(mhp.prof.work.field=="General Practitioner (GP)" |
+         mhp.prof.student.trainee.field=="General Practitioner (GP)" |
+         mhp.prof.work.field=="Mental health nurse" |
+         mhp.prof.work.field=="Psychiatrist" |
+         mhp.prof.student.trainee.field=="Psychiatrist" |
+         mhp.prof.work.field.other=="Physical Wellbeing Lead")
+
+
+means.vid.score.overall <- c(
+  mean(clean_data$mhp.vid.depression.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.vid.anxiety.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.vid.ptsd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.vid.bd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.vid.scz.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.vid.ocd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.vid.ed.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.vid.sud.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.vid.pd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.vid.aud.numeric, na.rm=TRUE)
+)
+sd.vid.score.overall <- c(
+  sd(clean_data$mhp.vid.depression.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.vid.anxiety.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.vid.ptsd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.vid.bd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.vid.scz.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.vid.ocd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.vid.ed.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.vid.sud.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.vid.pd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.vid.aud.numeric, na.rm=TRUE)
+)
+
+
+means.vid.score.psych <- c(
+  mean(pyschData$mhp.vid.depression.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.vid.anxiety.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.vid.ptsd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.vid.bd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.vid.scz.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.vid.ocd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.vid.ed.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.vid.sud.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.vid.pd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.vid.aud.numeric, na.rm=TRUE)
+)
+sd.vid.score.psych <- c(
+  sd(pyschData$mhp.vid.depression.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.vid.anxiety.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.vid.ptsd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.vid.bd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.vid.scz.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.vid.ocd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.vid.ed.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.vid.sud.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.vid.pd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.vid.aud.numeric, na.rm=TRUE)
+)
+
+
+means.vid.score.med <- c(
+  mean(medData$mhp.vid.depression.numeric, na.rm=TRUE),
+  mean(medData$mhp.vid.anxiety.numeric, na.rm=TRUE),
+  mean(medData$mhp.vid.ptsd.numeric, na.rm=TRUE),
+  mean(medData$mhp.vid.bd.numeric, na.rm=TRUE),
+  mean(medData$mhp.vid.scz.numeric, na.rm=TRUE),
+  mean(medData$mhp.vid.ocd.numeric, na.rm=TRUE),
+  mean(medData$mhp.vid.ed.numeric, na.rm=TRUE),
+  mean(medData$mhp.vid.sud.numeric, na.rm=TRUE),
+  mean(medData$mhp.vid.pd.numeric, na.rm=TRUE),
+  mean(medData$mhp.vid.aud.numeric, na.rm=TRUE)
+)
+sd.vid.score.med <- c(
+  sd(medData$mhp.vid.depression.numeric, na.rm=TRUE),
+  sd(medData$mhp.vid.anxiety.numeric, na.rm=TRUE),
+  sd(medData$mhp.vid.ptsd.numeric, na.rm=TRUE),
+  sd(medData$mhp.vid.bd.numeric, na.rm=TRUE),
+  sd(medData$mhp.vid.scz.numeric, na.rm=TRUE),
+  sd(medData$mhp.vid.ocd.numeric, na.rm=TRUE),
+  sd(medData$mhp.vid.ed.numeric, na.rm=TRUE),
+  sd(medData$mhp.vid.sud.numeric, na.rm=TRUE),
+  sd(medData$mhp.vid.pd.numeric, na.rm=TRUE),
+  sd(medData$mhp.vid.aud.numeric, na.rm=TRUE)
+)
+
+mean.vid.title <- c("DEP", "ANX", "PTSD", "BD", "SCZ", "OCD", "ED", "SUD", "PD", "AUD")
+
+overall.vid.dataframe <- data.frame(means=means.vid.score.overall, sds=sd.vid.score.overall, titles=mean.vid.title, subgroup="Overall Helpfulness")
+psych.vid.dataframe <- data.frame(means=means.vid.score.psych, sds=sd.vid.score.psych, titles=mean.vid.title, subgroup="Psychologically trained MHPs")
+med.vid.dataframe <-data.frame(means=means.vid.score.med, sds=sd.vid.score.med, titles=mean.vid.title, subgroup="Medically trained MHPs")
+
+all.dataframe.4 <- rbind(overall.vid.dataframe, psych.vid.dataframe, med.vid.dataframe)
+
+ggplot(all.dataframe.4, aes(x=titles, y=means, fill=subgroup)) + geom_bar(stat="identity", position=position_dodge()) + geom_errorbar(aes(x=titles, ymin=means-sds, ymax=means+sds), width=.3, position=position_dodge(.9)) + xlab("Psychiatric Disorder") + ylab("Mean Perceived Video Helpfulness") + theme(legend.position="bottom") + guides(fill=guide_legend(title = NULL)) + scale_fill_manual(values=c("#EFBF42", "#A4B8C4", "#8B3582"))
+
+
+```
+
+```{r t.test confidence scores}
+pyschData <- clean_data %>% 
+  filter(mhp.prof.work.field=="Assistant psychologist" |
+         mhp.prof.student.trainee.field=="Assistant psychologist" |
+         mhp.prof.work.field=="Counsellor" |
+         mhp.prof.student.trainee.field=="Counsellor" |
+         mhp.prof.work.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field.other=="Clinical Associate Psychologist" |
+         mhp.prof.work.field=="Clinical psychologist" |
+         mhp.prof.student.trainee.field=="Clinical psychologist" |
+         mhp.prof.work.field=="Counselling psychologist" |
+         mhp.prof.work.field=="Educational psychologist" |
+         mhp.prof.work.field.other=="Education Mental Health Practitioner (EMHP)" |
+         mhp.prof.work.field=="Psychological Wellbeing Practitioner" |
+         mhp.prof.work.field=="Social worker" |
+         mhp.prof.work.field=="Therapist" |
+         mhp.prof.student.trainee.field=="Therapist" |
+         mhp.prof.work.field.other=="Psychotherapist" | 
+         mhp.prof.work.field.other=="Psychological Therapist")
+
+medData <- clean_data %>%  
+  filter(mhp.prof.work.field=="General Practitioner (GP)" |
+         mhp.prof.student.trainee.field=="General Practitioner (GP)" |
+         mhp.prof.work.field=="Mental health nurse" |
+         mhp.prof.work.field=="Psychiatrist" |
+         mhp.prof.student.trainee.field=="Psychiatrist" |
+         mhp.prof.work.field.other=="Physical Wellbeing Lead")
+
+t.test(pyschData$mhp.vid.depression.numeric, medData$mhp.vid.depression.numeric)
+t.test(pyschData$mhp.vid.anxiety.numeric, medData$mhp.vid.anxiety.numeric)
+t.test(pyschData$mhp.vid.ptsd.numeric, medData$mhp.vid.ptsd.numeric)
+t.test(pyschData$mhp.vid.bd.numeric, medData$mhp.vid.bd.numeric)
+t.test(pyschData$mhp.vid.scz.numeric, medData$mhp.vid.scz.numeric)
+t.test(pyschData$mhp.vid.ocd.numeric, medData$mhp.vid.ocd.numeric)
+t.test(pyschData$mhp.vid.ed.numeric, medData$mhp.vid.ed.numeric)
+t.test(pyschData$mhp.vid.sud.numeric, medData$mhp.vid.sud.numeric)
+t.test(pyschData$mhp.vid.pd.numeric, medData$mhp.vid.pd.numeric)
+t.test(pyschData$mhp.vid.aud.numeric, medData$mhp.vid.aud.numeric)
+t.test(pyschData$mhp.vid.adhd.numeric, medData$mhp.vid.adhd.numeric)
+t.test(pyschData$mhp.vid.asd.numeric, medData$mhp.vid.asd.numeric)
+t.test(means.vid.score.med, means.vid.score.psych)
+
+```
+
+
+5. GC HELPFULNESS SCORES
+``` {r GC Helpfulness scores}
+PyschData <- clean_data %>% 
+  filter(mhp.prof.work.field=="Assistant psychologist" |
+         mhp.prof.student.trainee.field=="Assistant psychologist" |
+         mhp.prof.work.field=="Counsellor" |
+         mhp.prof.student.trainee.field=="Counsellor" |
+         mhp.prof.work.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field.other=="Clinical Associate Psychologist" |
+         mhp.prof.work.field=="Clinical psychologist" |
+         mhp.prof.student.trainee.field=="Clinical psychologist" |
+         mhp.prof.work.field=="Counselling psychologist" |
+         mhp.prof.work.field=="Educational psychologist" |
+         mhp.prof.work.field.other=="Education Mental Health Practitioner (EMHP)" |
+         mhp.prof.work.field=="Psychological Wellbeing Practitioner" |
+         mhp.prof.work.field=="Social worker" |
+         mhp.prof.work.field=="Therapist" |
+         mhp.prof.student.trainee.field=="Therapist" |
+         mhp.prof.work.field.other=="Psychotherapist" | 
+         mhp.prof.work.field.other=="Psychological Therapist")
+
+medData <- clean_data %>%  
+  filter(mhp.prof.work.field=="General Practitioner (GP)" |
+         mhp.prof.student.trainee.field=="General Practitioner (GP)" |
+         mhp.prof.work.field=="Mental health nurse" |
+         mhp.prof.work.field=="Psychiatrist" |
+         mhp.prof.student.trainee.field=="Psychiatrist" |
+         mhp.prof.work.field.other=="Physical Wellbeing Lead")
+
+
+means.gc.help.score.overall <- c(
+  mean(clean_data$mhp.gc.help.depression.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.help.anxiety.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.help.ptsd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.help.bd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.help.scz.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.help.ocd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.help.ed.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.help.sud.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.help.pd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.help.aud.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.help.adhd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.help.asd.numeric, na.rm=TRUE)
+
+)
+sd.gc.help.score.overall <- c(
+  sd(clean_data$mhp.gc.help.depression.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.help.anxiety.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.help.ptsd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.help.bd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.help.scz.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.help.ocd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.help.ed.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.help.sud.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.help.pd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.help.aud.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.help.adhd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.help.asd.numeric, na.rm=TRUE)
+
+)
+
+
+means.gc.help.score.psych <- c(
+  mean(pyschData$mhp.gc.help.depression.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.help.anxiety.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.help.ptsd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.help.bd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.help.scz.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.help.ocd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.help.ed.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.help.sud.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.help.pd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.help.aud.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.help.adhd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.help.asd.numeric, na.rm=TRUE)
+
+)
+sd.gc.help.score.psych <- c(
+  sd(pyschData$mhp.gc.help.depression.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.help.anxiety.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.help.ptsd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.help.bd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.help.scz.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.help.ocd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.help.ed.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.help.sud.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.help.pd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.help.aud.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.help.adhd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.help.asd.numeric, na.rm=TRUE)
+)
+
+
+means.gc.help.score.med <- c(
+  mean(medData$mhp.gc.help.depression.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.help.anxiety.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.help.ptsd.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.help.bd.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.help.scz.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.help.ocd.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.help.ed.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.help.sud.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.help.pd.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.help.aud.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.help.adhd.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.help.asd.numeric, na.rm=TRUE)
+
+)
+sd.gc.help.score.med <- c(
+  sd(medData$mhp.gc.help.depression.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.help.anxiety.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.help.ptsd.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.help.bd.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.help.scz.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.help.ocd.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.help.ed.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.help.sud.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.help.pd.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.help.aud.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.help.adhd.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.help.asd.numeric, na.rm=TRUE)
+)
+
+mean.gc.help.title <- c("DEP", "ANX", "PTSD", "BD", "SCZ", "OCD", "ED", "SUD", "PD", "AUD", "ADHD", "ASD")
+
+overall.gc.help.dataframe <- data.frame(means=means.gc.help.score.overall, sds=sd.gc.help.score.overall, titles=mean.gc.help.title, subgroup="Overall Helpfulness")
+psych.gc.help.dataframe <- data.frame(means=means.gc.help.score.psych, sds=sd.gc.help.score.psych, titles=mean.gc.help.title, subgroup="Psychologically trained MHPs")
+med.gc.help.dataframe <-data.frame(means=means.gc.help.score.med, sds=sd.gc.help.score.med, titles=mean.gc.help.title, subgroup="Medically  trained MHPs")
+
+all.dataframe.7 <- rbind(overall.gc.help.dataframe, psych.gc.help.dataframe, med.gc.help.dataframe)
+
+ggplot(all.dataframe.7, aes(x=titles, y=means, fill=subgroup)) + geom_bar(stat="identity", position=position_dodge()) + geom_errorbar(aes(x=titles, ymin=means-sds, ymax=means+sds), width=.3,  position=position_dodge(.9)) + xlab("Psychiatric Disorder") + ylab("Mean Perceived Psychiatric GC Helpfulness") + theme(legend.position="bottom") + guides(fill=guide_legend(title = NULL)) + scale_fill_manual(values=c("#EFBF42", "#A4B8C4", "#8B3582"))
+
+t.test(means.gc.help.score.med, means.gc.help.score.psych)
+
+
+``` 
+
+```{r t.test confidence scores}
+pyschData <- clean_data %>% 
+  filter(mhp.prof.work.field=="Assistant psychologist" |
+         mhp.prof.student.trainee.field=="Assistant psychologist" |
+         mhp.prof.work.field=="Counsellor" |
+         mhp.prof.student.trainee.field=="Counsellor" |
+         mhp.prof.work.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field.other=="Clinical Associate Psychologist" |
+         mhp.prof.work.field=="Clinical psychologist" |
+         mhp.prof.student.trainee.field=="Clinical psychologist" |
+         mhp.prof.work.field=="Counselling psychologist" |
+         mhp.prof.work.field=="Educational psychologist" |
+         mhp.prof.work.field.other=="Education Mental Health Practitioner (EMHP)" |
+         mhp.prof.work.field=="Psychological Wellbeing Practitioner" |
+         mhp.prof.work.field=="Social worker" |
+         mhp.prof.work.field=="Therapist" |
+         mhp.prof.student.trainee.field=="Therapist" |
+         mhp.prof.work.field.other=="Psychotherapist" | 
+         mhp.prof.work.field.other=="Psychological Therapist")
+
+medData <- clean_data %>%  
+  filter(mhp.prof.work.field=="General Practitioner (GP)" |
+         mhp.prof.student.trainee.field=="General Practitioner (GP)" |
+         mhp.prof.work.field=="Mental health nurse" |
+         mhp.prof.work.field=="Psychiatrist" |
+         mhp.prof.student.trainee.field=="Psychiatrist" |
+         mhp.prof.work.field.other=="Physical Wellbeing Lead")
+
+t.test(pyschData$mhp.gc.help.depression.numeric, medData$mhp.gc.help.depression.numeric)
+t.test(pyschData$mhp.gc.help.anxiety.numeric, medData$mhp.gc.help.anxiety.numeric)
+t.test(pyschData$mhp.gc.help.ptsd.numeric, medData$mhp.gc.help.ptsd.numeric)
+t.test(pyschData$mhp.gc.help.bd.numeric, medData$mhp.gc.help.bd.numeric)
+t.test(pyschData$mhp.gc.help.scz.numeric, medData$mhp.gc.help.scz.numeric)
+t.test(pyschData$mhp.gc.help.ocd.numeric, medData$mhp.gc.help.ocd.numeric)
+t.test(pyschData$mhp.gc.help.ed.numeric, medData$mhp.gc.help.ed.numeric)
+t.test(pyschData$mhp.gc.help.sud.numeric, medData$mhp.gc.help.sud.numeric)
+t.test(pyschData$mhp.gc.help.pd.numeric, medData$mhp.gc.help.pd.numeric)
+t.test(pyschData$mhp.gc.help.aud.numeric, medData$mhp.gc.help.aud.numeric)
+t.test(pyschData$mhp.gc.help.adhd.numeric, medData$mhp.gc.help.adhd.numeric)
+t.test(pyschData$mhp.gc.help.asd.numeric, medData$mhp.gc.help.asd.numeric)
+t.test(pyschData$mhp.gc.help.asd.numeric, medData$mhp.gc.help.asd.numeric)
+t.test(means.gc.help.score.med, means.gc.help.score.psych)
+
+
+```
+
+
+6. GC RECOMMENDATIONS SCORES 
+``` {r GC Recommendations scores}
+PyschData <- clean_data %>% 
+  filter(mhp.prof.work.field=="Assistant psychologist" |
+         mhp.prof.student.trainee.field=="Assistant psychologist" |
+         mhp.prof.work.field=="Counsellor" |
+         mhp.prof.student.trainee.field=="Counsellor" |
+         mhp.prof.work.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field.other=="Clinical Associate Psychologist" |
+         mhp.prof.work.field=="Clinical psychologist" |
+         mhp.prof.student.trainee.field=="Clinical psychologist" |
+         mhp.prof.work.field=="Counselling psychologist" |
+         mhp.prof.work.field=="Educational psychologist" |
+         mhp.prof.work.field.other=="Education Mental Health Practitioner (EMHP)" |
+         mhp.prof.work.field=="Psychological Wellbeing Practitioner" |
+         mhp.prof.work.field=="Social worker" |
+         mhp.prof.work.field=="Therapist" |
+         mhp.prof.student.trainee.field=="Therapist" |
+         mhp.prof.work.field.other=="Psychotherapist" | 
+         mhp.prof.work.field.other=="Psychological Therapist")
+
+medData <- clean_data %>%  
+  filter(mhp.prof.work.field=="General Practitioner (GP)" |
+         mhp.prof.student.trainee.field=="General Practitioner (GP)" |
+         mhp.prof.work.field=="Mental health nurse" |
+         mhp.prof.work.field=="Psychiatrist" |
+         mhp.prof.student.trainee.field=="Psychiatrist" |
+         mhp.prof.work.field.other=="Physical Wellbeing Lead")
+
+
+means.gc.recomm.score.overall <- c(
+  mean(clean_data$mhp.gc.recomm.depression.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.recomm.anxiety.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.recomm.ptsd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.recomm.bd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.recomm.scz.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.recomm.ocd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.recomm.ed.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.recomm.sud.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.recomm.pd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.recomm.aud.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.recomm.adhd.numeric, na.rm=TRUE),
+  mean(clean_data$mhp.gc.recomm.asd.numeric, na.rm=TRUE)
+
+)
+sd.gc.recomm.score.overall <- c(
+  sd(clean_data$mhp.gc.recomm.depression.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.recomm.anxiety.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.recomm.ptsd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.recomm.bd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.recomm.scz.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.recomm.ocd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.recomm.ed.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.recomm.sud.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.recomm.pd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.recomm.aud.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.recomm.adhd.numeric, na.rm=TRUE),
+  sd(clean_data$mhp.gc.recomm.asd.numeric, na.rm=TRUE)
+
+)
+
+
+means.gc.recomm.score.psych <- c(
+  mean(pyschData$mhp.gc.recomm.depression.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.recomm.anxiety.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.recomm.ptsd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.recomm.bd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.recomm.scz.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.recomm.ocd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.recomm.ed.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.recomm.sud.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.recomm.pd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.recomm.aud.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.recomm.adhd.numeric, na.rm=TRUE),
+  mean(pyschData$mhp.gc.recomm.asd.numeric, na.rm=TRUE)
+
+)
+sd.gc.recomm.score.psych <- c(
+  sd(pyschData$mhp.gc.recomm.depression.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.recomm.anxiety.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.recomm.ptsd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.recomm.bd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.recomm.scz.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.recomm.ocd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.recomm.ed.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.recomm.sud.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.recomm.pd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.recomm.aud.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.recomm.adhd.numeric, na.rm=TRUE),
+  sd(pyschData$mhp.gc.recomm.asd.numeric, na.rm=TRUE)
+)
+
+
+means.gc.recomm.score.med <- c(
+  mean(medData$mhp.gc.recomm.depression.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.recomm.anxiety.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.recomm.ptsd.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.recomm.bd.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.recomm.scz.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.recomm.ocd.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.recomm.ed.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.recomm.sud.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.recomm.pd.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.recomm.aud.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.recomm.adhd.numeric, na.rm=TRUE),
+  mean(medData$mhp.gc.recomm.asd.numeric, na.rm=TRUE)
+
+)
+sd.gc.recomm.score.med <- c(
+  sd(medData$mhp.gc.recomm.depression.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.recomm.anxiety.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.recomm.ptsd.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.recomm.bd.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.recomm.scz.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.recomm.ocd.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.recomm.ed.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.recomm.sud.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.recomm.pd.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.recomm.aud.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.recomm.adhd.numeric, na.rm=TRUE),
+  sd(medData$mhp.gc.recomm.asd.numeric, na.rm=TRUE)
+)
+
+mean.gc.recomm.title <- c("DEP", "ANX", "PTSD", "BD", "SCZ", "OCD", "ED", "SUD", "PD", "AUD", "ADHD", "ASD")
+
+overall.gc.recomm.dataframe <- data.frame(means=means.gc.recomm.score.overall, sds=sd.gc.recomm.score.overall, titles=mean.gc.recomm.title, subgroup="Overall Recommendation")
+psych.gc.recomm.dataframe <- data.frame(means=means.gc.recomm.score.psych, sds=sd.gc.recomm.score.psych, titles=mean.gc.recomm.title, subgroup="Psychologically trained MHPs")
+med.gc.recomm.dataframe <-data.frame(means=means.gc.recomm.score.med, sds=sd.gc.recomm.score.med, titles=mean.gc.help.title, subgroup="Medically trained MHPs")
+
+all.dataframe.6 <- rbind(overall.gc.recomm.dataframe, psych.gc.recomm.dataframe, med.gc.recomm.dataframe)
+
+ggplot(all.dataframe.6, aes(x=titles, y=means, fill=subgroup)) + geom_bar(stat="identity", position=position_dodge()) + geom_errorbar(aes(x=titles, ymin=means-sds, ymax=means+sds), width=.3,  position=position_dodge(.9)) + xlab("Psychiatric Disorder") + ylab("Mean Psychiatric GC Recommendation Score") + theme(legend.position="bottom") + guides(fill=guide_legend(title = NULL)) + scale_fill_manual(values=c("#EFBF42", "#A4B8C4", "#8B3582"))
+
+t.test(means.gc.recomm.score.med, means.gc.recomm.score.psych)
+
+
+
+``` 
+
+```{r t.test confidence scores}
+pyschData <- clean_data %>% 
+  filter(mhp.prof.work.field=="Assistant psychologist" |
+         mhp.prof.student.trainee.field=="Assistant psychologist" |
+         mhp.prof.work.field=="Counsellor" |
+         mhp.prof.student.trainee.field=="Counsellor" |
+         mhp.prof.work.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field=="Children's Wellbeing Practitioner" |
+         mhp.prof.student.trainee.field.other=="Clinical Associate Psychologist" |
+         mhp.prof.work.field=="Clinical psychologist" |
+         mhp.prof.student.trainee.field=="Clinical psychologist" |
+         mhp.prof.work.field=="Counselling psychologist" |
+         mhp.prof.work.field=="Educational psychologist" |
+         mhp.prof.work.field.other=="Education Mental Health Practitioner (EMHP)" |
+         mhp.prof.work.field=="Psychological Wellbeing Practitioner" |
+         mhp.prof.work.field=="Social worker" |
+         mhp.prof.work.field=="Therapist" |
+         mhp.prof.student.trainee.field=="Therapist" |
+         mhp.prof.work.field.other=="Psychotherapist" | 
+         mhp.prof.work.field.other=="Psychological Therapist")
+
+medData <- clean_data %>%  
+  filter(mhp.prof.work.field=="General Practitioner (GP)" |
+         mhp.prof.student.trainee.field=="General Practitioner (GP)" |
+         mhp.prof.work.field=="Mental health nurse" |
+         mhp.prof.work.field=="Psychiatrist" |
+         mhp.prof.student.trainee.field=="Psychiatrist" |
+         mhp.prof.work.field.other=="Physical Wellbeing Lead")
+
+t.test(pyschData$mhp.gc.recomm.depression.numeric, medData$mhp.gc.recomm.depression.numeric)
+t.test(pyschData$mhp.gc.recomm.anxiety.numeric, medData$mhp.gc.recomm.anxiety.numeric)
+t.test(pyschData$mhp.gc.recomm.ptsd.numeric, medData$mhp.gc.recomm.ptsd.numeric)
+t.test(pyschData$mhp.gc.recomm.bd.numeric, medData$mhp.gc.recomm.bd.numeric)
+t.test(pyschData$mhp.gc.recomm.scz.numeric, medData$mhp.gc.recomm.scz.numeric)
+t.test(pyschData$mhp.gc.recomm.ocd.numeric, medData$mhp.gc.recomm.ocd.numeric)
+t.test(pyschData$mhp.gc.recomm.ed.numeric, medData$mhp.gc.recomm.ed.numeric)
+t.test(pyschData$mhp.gc.recomm.sud.numeric, medData$mhp.gc.recomm.sud.numeric)
+t.test(pyschData$mhp.gc.recomm.pd.numeric, medData$mhp.gc.recomm.pd.numeric)
+t.test(pyschData$mhp.gc.recomm.aud.numeric, medData$mhp.gc.recomm.aud.numeric)
+t.test(pyschData$mhp.gc.recomm.adhd.numeric, medData$mhp.gc.recomm.adhd.numeric)
+t.test(pyschData$mhp.gc.recomm.asd.numeric, medData$mhp.gc.recomm.asd.numeric)
+
+```
+
+
+7.CORRELATIONS 
+``` {r Correlations}
+ggscatter(data, x="mhp.per.depression.numeric", y="mhp.vid.depression.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "Video Usefulness")
+
+ggscatter(data, x="mhp.per.anxiety.numeric", y="mhp.vid.anxiety.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "Video Usefulness")
+
+ggscatter(data, x="mhp.per.ptsd.numeric", y="mhp.vid.ptsd.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlab = "Genetic score", ylab = "Video Usefulness") 
+
+ggscatter(data, x="mhp.per.bd.numeric", y="mhp.vid.bd.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlab = "Genetic score", ylab = "Video Usefulness")
+          
+ggscatter(data, x="mhp.per.scz.numeric", y="mhp.vid.scz.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlab = "Genetic score", ylab = "Video Usefulness")
+          
+ggscatter(data, x="mhp.per.ocd.numeric", y="mhp.vid.ocd.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlab = "Genetic score", ylab = "Video Usefulness")
+
+ggscatter(data, x="mhp.per.ed.numeric", y="mhp.vid.ed.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlab = "Genetic score", ylab = "Video Usefulness")
+          
+ggscatter(data, x="mhp.per.sud.numeric", y="mhp.vid.sud.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlab = "Genetic score", ylab = "Video Usefulness")
+          
+ggscatter(data, x="mhp.per.pd.numeric", y="mhp.vid.pd.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlab = "Genetic score", ylab = "Video Usefulness")
+
+ggscatter(data, x="mhp.per.aud.numeric", y="mhp.vid.aud.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlab = "Genetic score", ylab = "Video Usefulness")
+          
+ggscatter(data, x="mhp.per.adhd.numeric", y="mhp.vid.adhd.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlab = "Genetic score", ylab = "Video Usefulness")
+          
+ggscatter(data, x="mhp.per.asd.numeric", y="mhp.vid.asd.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "spearman",
+          xlab = "Genetic score", ylab = "Video Usefulness")
+
+ggscatter(clean_data, x="meansGeneticScoreOverall", y="means.gc.help.score.overall", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "GC Helpfulness")
+          
+```
+
+``` {r Correlations GC}
+ggscatter(data, x="mhp.per.depression.numeric", y="mhp.gc.help.depression.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "GC Helpfulness")
+          ggtitle("depression")
+
+ggscatter(data, x="mhp.per.anxiety.numeric", y="mhp.gc.help.anxiety.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "GC Helpfulness")
+
+ggscatter(data, x="mhp.per.ptsd.numeric", y="mhp.gc.help.ptsd.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "GC Helpfulness")
+
+ggscatter(data, x="mhp.per.bd.numeric", y="mhp.gc.help.bd.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "GC Helpfulness")
+
+ggscatter(data, x="mhp.per.scz.numeric", y="mhp.gc.help.scz.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "GC Helpfulness")
+          ggtitle("scz")
+
+ggscatter(data, x="mhp.per.ocd.numeric", y="mhp.gc.help.ocd.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "GC Helpfulness")
+          ggtitle("ocd")
+
+ggscatter(data, x="mhp.per.ed.numeric", y="mhp.gc.help.ed.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "GC Helpfulness")
+          ggtitle("ed")
+          
+ggscatter(data, x="mhp.per.sud.numeric", y="mhp.gc.help.sud.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "GC Helpfulness")
+          ggtitle("sud")
+
+ggscatter(data, x="mhp.per.pd.numeric", y="mhp.gc.help.pd.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "GC Helpfulness")
+
+ggscatter(data, x="mhp.per.aud.numeric", y="mhp.gc.help.aud.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "GC Helpfulness")
+          ggtitle("aud")
+
+ggscatter(data, x="mhp.per.adhd.numeric", y="mhp.gc.help.adhd.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "GC Helpfulness")
+
+ggscatter(data, x="mhp.per.asd.numeric", y="mhp.gc.help.asd.numeric", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "GC Helpfulness")
+
+
+```
+
+```{r final corr}
+clean_data <- clean_data %>% 
+  mutate(GeneticScoreOverall = 
+  clean_data$mhp.per.depression.numeric, na.rm=TRUE,
+  clean_data$mhp.per.anxiety.numeric, na.rm=TRUE,
+  clean_data$mhp.per.ptsd.numeric, na.rm=TRUE,
+  clean_data$mhp.per.bd.numeric, na.rm=TRUE,
+  clean_data$mhp.per.scz.numeric, na.rm=TRUE,
+  clean_data$mhp.per.ocd.numeric, na.rm=TRUE,
+  clean_data$mhp.per.ed.numeric, na.rm=TRUE,
+  clean_data$mhp.per.sud.numeric, na.rm=TRUE,
+  clean_data$mhp.per.pd.numeric, na.rm=TRUE,
+  clean_data$mhp.per.aud.numeric, na.rm=TRUE,
+  clean_data$mhp.per.adhd.numeric, na.rm=TRUE,
+  clean_data$mhp.per.asd.numeric, na.rm=TRUE
+)
+
+gc.help.score.overall <- c(
+  clean_data$mhp.gc.help.depression.numeric, na.rm=TRUE,
+  clean_data$mhp.gc.help.anxiety.numeric, na.rm=TRUE,
+  clean_data$mhp.gc.help.ptsd.numeric, na.rm=TRUE,
+  clean_data$mhp.gc.help.bd.numeric, na.rm=TRUE,
+  clean_data$mhp.gc.help.scz.numeric, na.rm=TRUE,
+  clean_data$mhp.gc.help.ocd.numeric, na.rm=TRUE,
+  clean_data$mhp.gc.help.ed.numeric, na.rm=TRUE,
+  clean_data$mhp.gc.help.sud.numeric, na.rm=TRUE,
+  clean_data$mhp.gc.help.pd.numeric, na.rm=TRUE,
+  clean_data$mhp.gc.help.aud.numeric, na.rm=TRUE,
+  clean_data$mhp.gc.help.adhd.numeric, na.rm=TRUE,
+  clean_data$mhp.gc.help.asd.numeric, na.rm=TRUE
+)
+
+ggscatter(data, x="GeneticScoreOverall", y="gc.help.score.overall", 
+          add = "reg.line", conf.int = TRUE, 
+          cor.coef = TRUE, cor.method = "pearson",
+          xlab = "Genetic score", ylab = "GC helpfulness")
+```
+
+```{r saving data analysis }
+saveRDS(file = paste0("C:/Users/karla/King's College London/TNG-Public - Karla_MSc/scripts/PerPsych_MHPs_anon_analysis_main.rds"))
+```
